@@ -56,6 +56,7 @@ function renderTodos(list) {
 
     const category = document.createElement("span");
     category.className = "todo-category";
+    category.dataset.category = todo.category;
     category.textContent = todo.category;
 
     const editBtn = document.createElement("button");

@@ -134,7 +134,25 @@ body {
 
 .todo-category {
   font-size: 12px;
-  color: #6b7280;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+.todo-category[data-category="업무"] {
+  background-color: #e3edff;
+  color: #2f6fed;
+}
+
+.todo-category[data-category="개인"] {
+  background-color: #e1f7e9;
+  color: #1f9d55;
+}
+
+.todo-category[data-category="공부"] {
+  background-color: #f2e6ff;
+  color: #8b3fe8;
 }
 
 .edit-btn,
