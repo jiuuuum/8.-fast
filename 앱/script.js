@@ -93,7 +93,7 @@ function renderAll() {
 // ===== 데이터 조작 함수 =====
 function addTodo(text, category) {
   const trimmed = text.trim();
-  if (!trimmed) return;
+  if (!trimmed) return false;
 
   todos.push({
     id: generateId(),
@@ -105,6 +105,7 @@ function addTodo(text, category) {
 
   saveTodos(todos);
   renderAll();
+  return true;
 }
 
 function deleteTodo(id) {
@@ -136,8 +137,10 @@ function editTodoText(id, newText) {
 
 // ===== 이벤트 핸들러 =====
 function handleAddClick() {
-  addTodo(todoInputEl.value, categorySelectEl.value);
-  todoInputEl.value = "";
+  const added = addTodo(todoInputEl.value, categorySelectEl.value);
+  if (added) {
+    todoInputEl.value = "";
+  }
   todoInputEl.focus();
 }
 
