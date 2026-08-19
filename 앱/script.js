@@ -1,5 +1,7 @@
 // ===== 상수 =====
 const STORAGE_KEY = "todos";
+const THEME_KEY = "theme";
+const CATEGORIES = ["전체", "업무", "개인", "공부"];
 
 // ===== DOM 요소 =====
 const todoInputEl = document.getElementById("todo-input");
@@ -8,9 +10,16 @@ const addBtnEl = document.getElementById("add-btn");
 const todoListEl = document.getElementById("todo-list");
 const emptyMessageEl = document.getElementById("empty-message");
 const progressTextEl = document.getElementById("progress-text");
+const remainingBadgeEl = document.getElementById("remaining-badge");
+const themeToggleEl = document.getElementById("theme-toggle");
+const searchInputEl = document.getElementById("search-input");
+const filterTabsEl = document.getElementById("filter-tabs");
+const clearCompletedBtnEl = document.getElementById("clear-completed-btn");
 
 // ===== 상태 =====
 let todos = [];
+let searchQuery = "";
+let activeFilter = "전체";
 
 // ===== 저장/로드 함수 =====
 function saveTodos(list) {
@@ -28,18 +37,39 @@ function loadTodos() {
   }
 }
 
+function saveTheme(theme) {
+  localStorage.setItem(THEME_KEY, theme);
+}
+
+function loadTheme() {
+  return localStorage.getItem(THEME_KEY) === "dark" ? "dark" : "light";
+}
+
 function generateId() {
   return `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
 }
 
 // ===== 렌더링 함수 =====
-function renderTodos(list) {
+function getVisibleTodos() {
+  const query = searchQuery.trim().toLowerCase();
+  return todos.filter((todo) => {
+    const matchesFilter = activeFilter === "전체" || todo.category === activeFilter;
+    const matchesQuery = !query || todo.text.toLowerCase().includes(query);
+    return matchesFilter && matchesQuery;
+  });
+}
+
+function renderTodos(visibleList) {
   todoListEl.innerHTML = "";
 
-  const isEmpty = list.length === 0;
+  const isEmpty = visibleList.length === 0;
   emptyMessageEl.style.display = isEmpty ? "block" : "none";
+  if (isEmpty) {
+    emptyMessageEl.textContent =
+      todos.length === 0 ? "할 일이 없습니다. 추가해보세요!" : "검색 결과가 없습니다.";
+  }
 
-  list.forEach((todo) => {
+  visibleList.forEach((todo) => {
     const li = document.createElement("li");
     li.className = "todo-item";
     li.dataset.id = todo.id;
@@ -85,9 +115,20 @@ function renderProgress(list) {
   progressTextEl.textContent = `완료 ${completed} / ${total} (${percent}%)`;
 }
 
+function renderRemainingBadge(list) {
+  const remaining = list.filter((todo) => !todo.completed).length;
+  remainingBadgeEl.textContent = `남은 ${remaining}개`;
+}
+
+function renderClearCompletedState(list) {
+  clearCompletedBtnEl.disabled = !list.some((todo) => todo.completed);
+}
+
 function renderAll() {
-  renderTodos(todos);
+  renderTodos(getVisibleTodos());
   renderProgress(todos);
+  renderRemainingBadge(todos);
+  renderClearCompletedState(todos);
 }
 
 // ===== 데이터 조작 함수 =====
@@ -132,6 +173,40 @@ function editTodoText(id, newText) {
   if (!todo) return;
   todo.text = trimmed;
   saveTodos(todos);
+  renderAll();
+}
+
+function clearCompletedTodos() {
+  const completedCount = todos.filter((todo) => todo.completed).length;
+  if (completedCount === 0) return;
+
+  const confirmed = window.confirm(`완료된 항목 ${completedCount}개를 모두 삭제하시겠습니까?`);
+  if (!confirmed) return;
+
+  todos = todos.filter((todo) => !todo.completed);
+  saveTodos(todos);
+  renderAll();
+}
+
+// ===== 테마 =====
+function applyTheme(theme) {
+  document.documentElement.setAttribute("data-theme", theme);
+  themeToggleEl.setAttribute("aria-pressed", theme === "dark" ? "true" : "false");
+  saveTheme(theme);
+}
+
+function toggleTheme() {
+  const current = document.documentElement.getAttribute("data-theme") === "dark" ? "dark" : "light";
+  applyTheme(current === "dark" ? "light" : "dark");
+}
+
+// ===== 필터 =====
+function setActiveFilter(filter) {
+  if (!CATEGORIES.includes(filter)) return;
+  activeFilter = filter;
+  Array.from(filterTabsEl.children).forEach((btn) => {
+    btn.classList.toggle("active", btn.dataset.filter === filter);
+  });
   renderAll();
 }
 
@@ -200,15 +275,54 @@ function handleListChange(e) {
   toggleTodo(li.dataset.id);
 }
 
+function handleSearchInput(e) {
+  searchQuery = e.target.value;
+  renderTodos(getVisibleTodos());
+}
+
+function handleFilterClick(e) {
+  const btn = e.target.closest(".filter-tab");
+  if (!btn) return;
+  setActiveFilter(btn.dataset.filter);
+}
+
+function handleGlobalKeydown(e) {
+  if (!e.altKey) return;
+
+  const filterByCode = {
+    Digit1: "전체",
+    Digit2: "업무",
+    Digit3: "개인",
+    Digit4: "공부",
+  };
+
+  if (e.code === "KeyN") {
+    e.preventDefault();
+    todoInputEl.focus();
+  } else if (e.code === "KeyD") {
+    e.preventDefault();
+    toggleTheme();
+  } else if (filterByCode[e.code]) {
+    e.preventDefault();
+    setActiveFilter(filterByCode[e.code]);
+  }
+}
+
 // ===== 초기화 =====
 function init() {
   todos = loadTodos();
+  applyTheme(loadTheme());
   renderAll();
 
   addBtnEl.addEventListener("click", handleAddClick);
   todoInputEl.addEventListener("keydown", handleInputKeydown);
   todoListEl.addEventListener("click", handleListClick);
   todoListEl.addEventListener("change", handleListChange);
+  clearCompletedBtnEl.addEventListener("click", clearCompletedTodos);
+  searchInputEl.addEventListener("input", handleSearchInput);
+  filterTabsEl.addEventListener("click", handleFilterClick);
+  themeToggleEl.addEventListener("click", toggleTheme);
+  document.addEventListener("keydown", handleGlobalKeydown);
 }
 
 document.addEventListener("DOMContentLoaded", init);

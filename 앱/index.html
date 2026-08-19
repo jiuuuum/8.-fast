@@ -8,28 +8,55 @@
 </head>
 <body>
   <div class="app">
-    <h1 class="app-title">할 일 관리</h1>
+    <header class="app-header">
+      <h1 class="app-title">할 일 관리</h1>
+      <button
+        id="theme-toggle"
+        class="theme-toggle"
+        type="button"
+        aria-label="다크 모드 전환 (Alt+D)"
+        aria-pressed="false"
+        title="다크 모드 전환 (Alt+D)"
+      >
+        <span class="theme-toggle-thumb"></span>
+      </button>
+    </header>
 
     <!-- 입력 영역 -->
     <section class="input-card">
-      <input type="text" id="todo-input" class="todo-input" placeholder="할 일을 입력하세요" />
+      <input type="text" id="todo-input" class="todo-input" placeholder="할 일을 입력하세요 (Alt+N)" />
       <select id="category-select" class="category-select">
         <option value="업무">업무</option>
         <option value="개인">개인</option>
         <option value="공부">공부</option>
       </select>
-      <button id="add-btn" class="add-btn">등록</button>
+      <button id="add-btn" class="add-btn" type="button">등록</button>
     </section>
 
     <!-- 진행률 영역 -->
     <section class="progress-card">
-      <span id="progress-text">완료 0 / 0 (0%)</span>
+      <div class="progress-row">
+        <span id="progress-text">완료 0 / 0 (0%)</span>
+        <span id="remaining-badge" class="remaining-badge">남은 0개</span>
+      </div>
+    </section>
+
+    <!-- 검색 / 필터 / 일괄 삭제 영역 -->
+    <section class="toolbar-card">
+      <input type="text" id="search-input" class="search-input" placeholder="할 일 검색" />
+      <div class="filter-tabs" id="filter-tabs">
+        <button type="button" class="filter-tab active" data-filter="전체">전체 <span class="filter-key">Alt+1</span></button>
+        <button type="button" class="filter-tab" data-filter="업무">업무 <span class="filter-key">Alt+2</span></button>
+        <button type="button" class="filter-tab" data-filter="개인">개인 <span class="filter-key">Alt+3</span></button>
+        <button type="button" class="filter-tab" data-filter="공부">공부 <span class="filter-key">Alt+4</span></button>
+      </div>
+      <button id="clear-completed-btn" class="clear-completed-btn" type="button" disabled>완료된 항목 모두 삭제</button>
     </section>
 
     <!-- 목록 영역 -->
     <section class="list-card">
       <ul id="todo-list" class="todo-list"></ul>
-      <p id="empty-message" class="empty-message">할 일이 없습니다</p>
+      <p id="empty-message" class="empty-message">할 일이 없습니다. 추가해보세요!</p>
     </section>
   </div>
 
