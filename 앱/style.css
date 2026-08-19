@@ -12,6 +12,7 @@ body {
   font-family: "Pretendard", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
   color: #2d2d2d;
   padding: 40px 16px;
+  line-height: 1.5;
 }
 
 .app {
@@ -53,6 +54,13 @@ body {
   border: 1px solid #dcdfe4;
   border-radius: 8px;
   font-size: 14px;
+  min-width: 0;
+}
+
+.todo-input:focus,
+.category-select:focus {
+  outline: none;
+  border-color: #4f8cff;
 }
 
 .category-select {
@@ -61,6 +69,7 @@ body {
   border-radius: 8px;
   font-size: 14px;
   background-color: #fff;
+  cursor: pointer;
 }
 
 .add-btn {
@@ -72,6 +81,7 @@ body {
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;
+  transition: background-color 0.15s ease;
 }
 
 .add-btn:hover {
@@ -96,6 +106,9 @@ body {
   display: flex;
   flex-direction: column;
   gap: 8px;
+  max-height: 420px;
+  overflow-y: auto;
+  padding-right: 4px;
 }
 
 .empty-message {
@@ -112,6 +125,19 @@ body {
   padding: 10px 12px;
   border: 1px solid #eceff2;
   border-radius: 8px;
+  transition: background-color 0.15s ease;
+}
+
+.todo-item:hover {
+  background-color: #fafbfc;
+}
+
+.todo-checkbox {
+  width: 18px;
+  height: 18px;
+  accent-color: #4f8cff;
+  cursor: pointer;
+  flex-shrink: 0;
 }
 
 .todo-text {
@@ -163,9 +189,44 @@ body {
   background-color: #fff;
   font-size: 12px;
   cursor: pointer;
+  flex-shrink: 0;
+  transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
 }
 
-.edit-btn:hover,
-.delete-btn:hover {
+.edit-btn:hover {
   background-color: #f5f7fa;
+}
+
+.delete-btn:hover {
+  background-color: #fdecec;
+  border-color: #f5b5b5;
+  color: #d64545;
+}
+
+/* 반응형: 좁은 화면 */
+@media (max-width: 480px) {
+  body {
+    padding: 24px 12px;
+  }
+
+  .input-card {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .todo-input,
+  .category-select,
+  .add-btn {
+    flex: 1 1 auto;
+    width: 100%;
+  }
+
+  .todo-item {
+    flex-wrap: wrap;
+  }
+
+  .todo-text {
+    flex: 1 1 100%;
+    order: -1;
+  }
 }
